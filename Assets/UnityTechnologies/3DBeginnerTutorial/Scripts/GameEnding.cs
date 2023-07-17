@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,6 +13,10 @@ public class GameEnding : MonoBehaviour
     public CanvasGroup exitBackground; // 플레이어가 출구에 도달했을 때 나타날 UI의 배경
     public CanvasGroup caughtBackground; // 플레이어가 적에게 잡혔을 때 나타날 UI의 배경
     float timer; // 타이머
+
+    public AudioSource exitAudio; // 플레이어가 출구에 도달했을 때 재생할 오디오
+    public AudioSource caughtAudio; // 플레이어가 적에게 잡혔을 때 재생할 오디오
+    bool m_HasAudioPlayed; // 오디오가 재생되었는지 여부
 
     private void OnTriggerEnter(Collider other)
     {
@@ -34,18 +35,24 @@ public class GameEnding : MonoBehaviour
     {
         if (playerAtExit)
         {
-            EndLevel(exitBackground, false);
+            EndLevel(exitBackground, false, exitAudio);
         }
         else if (playerCaught)
         {
-            EndLevel(caughtBackground, true);
+            EndLevel(caughtBackground, true, caughtAudio);
         }
     }
 
-    private void EndLevel(CanvasGroup imageCanvasGroup, bool doRestart)
+    private void EndLevel(CanvasGroup imageCanvasGroup, bool doRestart, AudioSource audioSource)
     {
+        if (!m_HasAudioPlayed)
+        {
+            audioSource.Play();
+            m_HasAudioPlayed = true;
+        }
+
         timer += Time.deltaTime;
-        exitBackground.alpha = timer / fadeDuration; // UI의 투명도를 서서히 올린다.
+        imageCanvasGroup.alpha = timer / fadeDuration; // UI의 투명도를 서서히 올린다.
 
         if (timer > fadeDuration + displayImageDuration)
         {
